@@ -1,0 +1,14 @@
+# Local temporary and document-review files
+tmp/
+_docx_review/
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated local metadata
+.DS_Store
+Thumbs.db
+
