@@ -218,7 +218,7 @@ $$
 $$
 I\propto
 |\boldsymbol E_1|^2+|\boldsymbol E_2|^2
-+2\operatorname{Re}
++2\mathrm{Re}
 \left(\boldsymbol E_1\cdot\boldsymbol E_2^*\right).
 $$
 
@@ -283,4 +283,3 @@ $$
 3. 对单色光，光程差通过 $\phi=2\pi\Delta/\lambda$ 转化为相位差。
 4. 干涉图可写成 $I=A+B\cos\phi$，其中 $A$ 是背景，$B$ 是调制度，$\phi$ 是待恢复的空间相位。
 5. 干涉测量得到的是物光与参考光的相对相位；相移算法用于从光强中恢复该相位。
-

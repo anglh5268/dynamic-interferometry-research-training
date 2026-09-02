@@ -5,7 +5,7 @@
 四步相移使用
 
 $$
-\phi_w(x,y)=\operatorname{atan2}(I_4-I_2,I_1-I_3)
+\phi_w(x,y)=\mathrm{atan2}(I_4-I_2,I_1-I_3)
 $$
 
 恢复相位。由于 `atan2` 的输出范围通常是 $(-\pi,\pi]$，所得结果是包裹相位，而不是任意范围内连续变化的真实相位。
@@ -29,7 +29,7 @@ $$
 
 $$
 \boxed{
-\operatorname{wrap}(\phi)
+\mathrm{wrap}(\phi)
 =\left[(\phi+\pi)\bmod 2\pi\right]-\pi
 }.
 $$
@@ -68,7 +68,7 @@ $$
 如果 $d_w>\pi$，通常减去 $2\pi$；如果 $d_w<-\pi$，通常加上 $2\pi$。也可以统一写成
 
 $$
-g(i)=\operatorname{wrap}[d_w(i)].
+g(i)=\mathrm{wrap}[d_w(i)].
 $$
 
 然后累加局部差值：
@@ -100,7 +100,7 @@ $$
 将该差值重新包裹：
 
 $$
-\operatorname{wrap}(-1.6\pi)=0.4\pi.
+\mathrm{wrap}(-1.6\pi)=0.4\pi.
 $$
 
 继续累加可恢复连续序列。
@@ -126,7 +126,7 @@ $$
 该大跳变可能只是相位跨越 $+\pi$ 与 $-\pi$ 边界造成的。再次包裹得到
 
 $$
-g=\operatorname{wrap}(-1.7\pi)=0.3\pi.
+g=\mathrm{wrap}(-1.7\pi)=0.3\pi.
 $$
 
 再次包裹的作用是从所有相差整数个 $2\pi$ 的候选差值中，选择位于 $(-\pi,\pi]$ 内的主值，从而消除包裹边界造成的虚假 $2\pi$ 跳变。
@@ -135,7 +135,7 @@ $$
 
 $$
 \boxed{
-g=\operatorname{wrap}
+g=\mathrm{wrap}
 [\phi_{w2}-\phi_{w1}]
 }
 $$
@@ -186,7 +186,7 @@ $$
 
 $$
 \boxed{
-g_x(i,j)=\operatorname{wrap}
+g_x(i,j)=\mathrm{wrap}
 [\phi_w(i,j+1)-\phi_w(i,j)]
 }.
 $$
@@ -195,7 +195,7 @@ $$
 
 $$
 \boxed{
-g_y(i,j)=\operatorname{wrap}
+g_y(i,j)=\mathrm{wrap}
 [\phi_w(i+1,j)-\phi_w(i,j)]
 }.
 $$
@@ -268,11 +268,11 @@ g_{AC}=0.4\pi,
 $$
 
 $$
-g_{CD}=\operatorname{wrap}(-0.9\pi-0.4\pi)=0.7\pi,
+g_{CD}=\mathrm{wrap}(-0.9\pi-0.4\pi)=0.7\pi,
 $$
 
 $$
-g_{BD}=\operatorname{wrap}(-0.9\pi-0.6\pi)=0.5\pi.
+g_{BD}=\mathrm{wrap}(-0.9\pi-0.6\pi)=0.5\pi.
 $$
 
 固定参考相位 $\phi_A=0$，可得
@@ -483,4 +483,3 @@ $$
 5. 最小二乘法可以缓解噪声引起的路径矛盾，但不能解决严重欠采样造成的根本歧义。
 6. 加权最小二乘法可以利用调制度和信噪比降低低质量区域的影响。
 7. 展开结果仍具有未知活塞项，转换为物理高度前需要确定参考。
-

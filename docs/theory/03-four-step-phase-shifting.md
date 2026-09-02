@@ -68,7 +68,7 @@ $$
 
 $$
 \boxed{
-\phi=\operatorname{atan2}
+\phi=\mathrm{atan2}
 (I_4-I_2,\ I_1-I_3)
 }.
 $$
@@ -99,10 +99,10 @@ $$
 
 因此，待测相位 $\phi$ 就是矢量 $(x,y)$ 与 $x$ 轴之间的夹角。
 
-普通的 $\arctan(y/x)$ 只知道比值，无法区分相差 $\pi$ 的象限。$\operatorname{atan2}(y,x)$ 同时利用 $x$ 和 $y$ 的符号，其典型规则为
+普通的 $\arctan(y/x)$ 只知道比值，无法区分相差 $\pi$ 的象限。$\mathrm{atan2}(y,x)$ 同时利用 $x$ 和 $y$ 的符号，其典型规则为
 
 $$
-\operatorname{atan2}(y,x)=
+\mathrm{atan2}(y,x)=
 \begin{cases}
 \arctan(y/x), & x>0,\\
 \arctan(y/x)+\pi, & x<0,\ y\geq0,\\
@@ -135,7 +135,7 @@ $$
 所以
 
 $$
-\phi=\operatorname{atan2}(40,60)
+\phi=\mathrm{atan2}(40,60)
 \approx0.588\ \mathrm{rad}
 \approx33.69^\circ.
 $$
@@ -236,7 +236,7 @@ $$
 
 ## 7. 包裹相位与相位展开
 
-$\operatorname{atan2}$ 输出限制在 $(-\pi,\pi]$，真实相位与包裹相位满足
+$\mathrm{atan2}$ 输出限制在 $(-\pi,\pi]$，真实相位与包裹相位满足
 
 $$
 \phi_{\mathrm{true}}(x,y)
@@ -361,4 +361,3 @@ $$
 4. 相位可以转换为光程差；反射测量中可进一步转换为表面高度。
 5. 顺序四步法要求采集期间 $A$、$B$ 和 $\phi$ 不变且相移准确。
 6. 动态场景主要破坏 $\phi$ 不随采集时间变化的假设，这正是同步偏振相移需要解决的问题。
-
