@@ -1,0 +1,36 @@
+{
+  "case_name": "case_b_ideal_static_four_step_psi",
+  "parameters": {
+    "wavelength_m": 6.328e-07,
+    "background": 1.0,
+    "contrast": 0.8,
+    "height_peak_m": 8e-07
+  },
+  "sampling_check": {
+    "max_true_phase_rad": 15.882779928626425,
+    "max_adjacent_diff_x_rad": 0.30223194355942873,
+    "max_adjacent_diff_y_rad": 0.30223194355942873,
+    "x_sampling_valid": true,
+    "y_sampling_valid": true
+  },
+  "wrapped_phase_validation": {
+    "max_circular_error_rad": 1.1102230246251565e-15,
+    "rmse_circular_error_rad": 2.1624554002426036e-16
+  },
+  "direct_wrapped_height_result": {
+    "max_height_m": 1.5785061740719382e-07,
+    "height_rmse_m": 1.7778607594192555e-07,
+    "max_absolute_height_error_m": 9.492000000000001e-07
+  },
+  "unwrapped_reconstruction": {
+    "piston_rad": -1.3424180377583703e-16,
+    "phase_rmse_rad": 2.657107740457989e-16,
+    "max_absolute_phase_error_rad": 1.7763568394002505e-15,
+    "recovered_height_max_m": 7.998031768496696e-07,
+    "height_rmse_m": 1.9268471988696302e-23,
+    "max_absolute_height_error_m": 2.117582368135751e-22,
+    "true_height_pv_m": 7.998030868215299e-07,
+    "recovered_height_pv_m": 7.998030868215298e-07,
+    "height_error_pv_m": 3.1763735522036263e-22
+  }
+}
