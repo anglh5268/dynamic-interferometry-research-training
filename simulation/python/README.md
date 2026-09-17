@@ -30,3 +30,16 @@ results/   Generated figures and JSON metrics
 ```
 
 The current unwrapping method applies one-dimensional `numpy.unwrap` sequentially along the two axes. It is suitable for the smooth, noise-free case here and is not a general two-dimensional unwrapping algorithm.
+
+## Ideal global dynamic comparison
+
+The first dynamic baseline compares sequential four-frame acquisition with ideal
+simultaneous four-channel acquisition under a global sinusoidal phase:
+
+```powershell
+python -m scripts.simulate_dynamic_global
+```
+
+The model, sampling times, parameter interpretation, and error metrics are defined
+in `docs/theory/06-dynamic-phase-model.md`. Results are saved under
+`results/dynamic_global_ideal/`.
