@@ -1,5 +1,7 @@
 # Bai 等（2023）：同步相移干涉综述阅读笔记
 
+> 状态：AI 预读初稿。保留作为资料索引，不代表学习者已逐项阅读确认；正式带读成果见 `references/guided-reading/`。
+
 ## 1. 基本信息
 
 - 题目：*Phase Shifting Approaches and Multi-Channel Interferograms Position Registration for Simultaneous Phase-Shifting Interferometry: A Review*
@@ -56,4 +58,3 @@
 
 - 后续需为具体硬件选定配准方法和有效孔径提取方法。
 - 需要区分“单相机四区域”与“像素级微偏振阵列”的空间误差模型，不能共用一个简单平移参数。
-

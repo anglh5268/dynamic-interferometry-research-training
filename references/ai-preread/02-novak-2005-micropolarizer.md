@@ -1,5 +1,7 @@
 # Novak 等（2005）：微偏振阵列同步相移阅读笔记
 
+> 状态：AI 预读初稿。保留作为资料索引，不代表学习者已逐项阅读确认；正式带读成果见 `references/guided-reading/`。
+
 ## 1. 基本信息
 
 - 题目：*Analysis of a Micropolarizer Array-Based Simultaneous Phase-Shifting Interferometer*
@@ -64,4 +66,3 @@ $$
 
 - 复现论文的 $3\times3$ 加权算法前，需要逐项核对式 (3) 的像素排列。
 - 实际相机的微偏振排列、像元尺寸和标定数据需要由具体设备确定。
-

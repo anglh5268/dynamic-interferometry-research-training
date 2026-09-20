@@ -36,7 +36,8 @@ references/        文献阅读记录（不直接存放受版权保护的论文�
 
 ## 当前动态阶段
 
-- [x] 第一轮四篇核心文献阅读笔记
+- [x] 三篇基础文献逐篇带读与综合检查
+- [ ] 偏振实验系统文献按需精读
 - [x] 整体正弦动态相位与中心时刻真值规范
 - [x] 理想顺序四步法与理想同步四通道基线程序
 - [ ] 局部高斯动态形变
@@ -45,3 +46,5 @@ references/        文献阅读记录（不直接存放受版权保护的论文�
 ## 阶段复习
 
 - [第一阶段知识地图与复习清单](docs/review/00-foundation-knowledge-map.md)
+- [文献阅读状态与目录说明](references/README.md)
+- [三篇基础文献综合认识](references/guided-reading/00-three-paper-synthesis.md)

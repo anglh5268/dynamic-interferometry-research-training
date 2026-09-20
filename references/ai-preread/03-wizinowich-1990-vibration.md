@@ -1,5 +1,7 @@
 # Wizinowich（1990）：振动下相移干涉阅读笔记
 
+> 状态：AI 预读初稿，仅依据可访问摘要与出版信息整理，未完成学习者带读确认。
+
 ## 1. 基本信息
 
 - 题目：*Phase Shifting Interferometry in the Presence of Vibration: A New Algorithm and System*
@@ -43,4 +45,3 @@ $$
 
 - 若要复现 2+1 算法，必须取得全文并核对三幅图的精确定义、频移关系和七个公式。
 - 第一版四步仿真的振幅和频率范围属于控制变量扫描，不应冒充论文实验参数。
-

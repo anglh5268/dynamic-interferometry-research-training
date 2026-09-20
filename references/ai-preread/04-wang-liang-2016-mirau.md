@@ -1,5 +1,7 @@
 # Wang 与 Liang（2016）：同步偏振 Mirau 干涉仪阅读笔记
 
+> 状态：AI 预读初稿，仅依据可访问摘要与出版信息整理，未完成学习者带读确认。
+
 ## 1. 基本信息
 
 - 题目：*Simultaneous Polarization Mirau Interferometer Based on Pixelated Polarization Camera*
@@ -39,4 +41,3 @@ $$
 
 - 取得全文后核对三条公式、具体光路元件方向和交换叠加校准步骤。
 - 若选用真实偏振相机，需要测量每类像素的暗场、增益、透过率、检偏角和消光比。
-
