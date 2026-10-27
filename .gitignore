@@ -9,6 +9,11 @@ __pycache__/
 venv/
 
 # Generated local metadata
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .DS_Store
 Thumbs.db
+
+# Zemax local companion/cache files (keep native model sources)
+*.ZDA
+*.zda

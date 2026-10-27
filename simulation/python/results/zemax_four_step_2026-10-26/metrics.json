@@ -1,0 +1,57 @@
+{
+  "shape": [
+    256,
+    256
+  ],
+  "detector_width_mm": 10,
+  "source_wavelength_nm_assumed": 632.8,
+  "pixel_pitch_mm": 0.0390625,
+  "input_provenance": {
+    "I0": {
+      "sha256": "4273b6dd4ec9f14a7a980ddc0921549cca89d9140623b3b23ce27d19f397656e",
+      "header": "探测器列表\n\n文件 : C:\\Users\\86156\\Desktop\\zemax文件\\test1.zmx\n题目: \n日期 : 2026/10/26\n\n\n探测器 5, NSCG面 1: \n大小 10.000 W X 10.000 H 毫米, 像素 256 W X 256 H, 总撞击数 = 5209606\n\n峰辐照度 : 4.4984E+00 瓦特/cm^2\n总功率: 4.2983E-01 瓦特\n平滑          : 无\n数据类型       : 相干辐照度\n探测器X      : 0.0000\n探测器Y      : -102.0000\n探测器Z      : 0.0000\n探测器倾斜度X : 90.0000\n探测器倾斜度Y : 0.0000\n探测器倾斜度Z : 0.0000\n位置单位  : 毫米\n单位           : 瓦特/cm^2\n",
+      "minimum": 1.613e-06,
+      "maximum": 4.498
+    },
+    "I90": {
+      "sha256": "c5584381529ebbea2dd9706bb314abf23ab5b968ad2c50fcaaa93f3793f893dc",
+      "header": "探测器列表\n\n文件 : C:\\Users\\86156\\Desktop\\zemax文件\\test1.zmx\n题目: \n日期 : 2026/10/26\n\n\n探测器 5, NSCG面 1: \n大小 10.000 W X 10.000 H 毫米, 像素 256 W X 256 H, 总撞击数 = 5212434\n\n峰辐照度 : 4.6531E+00 瓦特/cm^2\n总功率: 4.2983E-01 瓦特\n平滑          : 无\n数据类型       : 相干辐照度\n探测器X      : 0.0000\n探测器Y      : -102.0000\n探测器Z      : 0.0000\n探测器倾斜度X : 90.0000\n探测器倾斜度Y : 0.0000\n探测器倾斜度Z : 0.0000\n位置单位  : 毫米\n单位           : 瓦特/cm^2\n",
+      "minimum": 4.99e-07,
+      "maximum": 4.653
+    },
+    "I180": {
+      "sha256": "781f6c0189e4b4f1eeb6dc77f49f3f3aadc672d58c66c48e3ac3b56b033d57ce",
+      "header": "探测器列表\n\n文件 : C:\\Users\\86156\\Desktop\\zemax文件\\test1.zmx\n题目: \n日期 : 2026/10/26\n\n\n探测器 5, NSCG面 1: \n大小 10.000 W X 10.000 H 毫米, 像素 256 W X 256 H, 总撞击数 = 5209565\n\n峰辐照度 : 4.4725E+00 瓦特/cm^2\n总功率: 4.2983E-01 瓦特\n平滑          : 无\n数据类型       : 相干辐照度\n探测器X      : 0.0000\n探测器Y      : -102.0000\n探测器Z      : 0.0000\n探测器倾斜度X : 90.0000\n探测器倾斜度Y : 0.0000\n探测器倾斜度Z : 0.0000\n位置单位  : 毫米\n单位           : 瓦特/cm^2\n",
+      "minimum": 2.789e-06,
+      "maximum": 4.472
+    },
+    "I270": {
+      "sha256": "db98543e5f6ee3bf80479c4b829804dd337ae1960358234ddcb069a4017ecea5",
+      "header": "探测器列表\n\n文件 : C:\\Users\\86156\\Desktop\\zemax文件\\test1.zmx\n题目: \n日期 : 2026/10/26\n\n\n探测器 5, NSCG面 1: \n大小 10.000 W X 10.000 H 毫米, 像素 256 W X 256 H, 总撞击数 = 5211810\n\n峰辐照度 : 4.4471E+00 瓦特/cm^2\n总功率: 4.2983E-01 瓦特\n平滑          : 无\n数据类型       : 相干辐照度\n探测器X      : 0.0000\n探测器Y      : -102.0000\n探测器Z      : 0.0000\n探测器倾斜度X : 90.0000\n探测器倾斜度Y : 0.0000\n探测器倾斜度Z : 0.0000\n位置单位  : 毫米\n单位           : 瓦特/cm^2\n",
+      "minimum": 5.383e-07,
+      "maximum": 4.447
+    }
+  },
+  "fit_period_mm": 0.9063934018448834,
+  "theoretical_period_mm": 0.9064193055265899,
+  "fitted_relative_steps_deg": [
+    0.0,
+    -90.01399678601287,
+    -180.00190018519334,
+    -269.98258179745454
+  ],
+  "sign_convention": "Increasing file row index, positive spatial carrier in intensity fit; physical Y orientation not verified.",
+  "mask_background_fraction": 0.15,
+  "mask_modulation_minimum": 0.25,
+  "valid_pixels": 23622,
+  "mask_fraction": 0.360443115234375,
+  "median_modulation": 0.9631661696928583,
+  "pair_sum_relative_rms": 0.029086328662798693,
+  "theoretical_carrier_circular_residual_rms_rad": 0.021889550417552153,
+  "limitations": [
+    "No absolute phase accuracy or surface height ground truth.",
+    "Sequentially acquired frames, not simultaneous polarization channels.",
+    "No independent per-frame intensity normalization applied.",
+    "Exports alone do not certify ray trace completion or detector coherent-power normalization settings."
+  ]
+}

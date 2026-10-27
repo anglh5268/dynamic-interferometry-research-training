@@ -1,0 +1,17 @@
+{
+  "files.exclude": {
+    "tmp": true,
+    "_docx_review": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.DS_Store": true,
+    "**/*.ZDA": true,
+    "**/*.zda": true
+  },
+  "search.exclude": {
+    "tmp": true,
+    "_docx_review": true,
+    "**/__pycache__": true,
+    "references/local-pdfs": true
+  }
+}

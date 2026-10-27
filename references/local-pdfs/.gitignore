@@ -1,0 +1,3 @@
+# Local reading copies and caches; do not commit paper full texts.
+*
+!.gitignore

@@ -1,0 +1,694 @@
+\documentclass[UTF8,fontset=fandol,11pt,a4paper]{ctexart}
+\usepackage[margin=23mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs,longtable}
+\usepackage{xcolor,enumitem,fancyhdr}
+\usepackage[unicode,colorlinks=true,linkcolor=teal,urlcolor=teal]{hyperref}
+\definecolor{ink}{HTML}{18384A}
+\ctexset{section={format=\Large\bfseries\color{ink}},subsection={format=\large\bfseries\color{ink}}}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\setlist{nosep,leftmargin=2em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small 像素化相位掩膜动态干涉仪}
+\fancyhead[R]{\small 对话复习总结}
+\fancyfoot[C]{\thepage}
+\hypersetup{pdftitle={像素化相位掩膜动态干涉仪：详细复习总结},pdfauthor={科研训练阅读整理}}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{ink} 像素化相位掩膜动态干涉仪}\\[7pt]
+{\Large 原理、滑动窗口、误差与实验的详细复习总结}\\[9pt]
+{\small 根据原论文与逐段科研训练对话整理\quad 2026 年 10 月 8 日}
+\end{center}
+\noindent 本文围绕 Millerd 等的 \textit{Pixelated Phase-Mask Dynamic Interferometers}（2005），保留讨论中的疑问、补充推导和修正。原论文六张图请对照中文学习译本的前八页；本笔记给出逐图说明及可独立复算的公式，不将教学模型记为作者公开算法。
+\tableofcontents
+\clearpage
+
+
+整理日期：2026-10-08。根据原论文八页及我们逐段阅读、提问、补充推导和修正整理。
+
+\section{文献、范围与复习方法}
+
+\begin{itemize}
+\item 题名：\emph{Pixelated Phase-Mask Dynamic Interferometers}。
+\item 作者：James Millerd、Neal Brock、John Hayes、Michael North-Morris、Brad Kimbrough、James Wyant。
+\item 出处：\emph{Fringe 2005}，640–647；DOI：\href{https://doi.org/10.1007/3-540-29303-5_86}{10.1007/3-540-29303-5\_86}。
+\item 本地英文原文；中文学习译本。译本前八页对应原文，后两页为术语与图内标注对照。
+\item 已完成带读：§1–6、公式（1）、图 1–6、表 1。学习者在逐段讨论后要求整理本总结。参考文献表用作追踪入口，不代表其中各篇均已读过。
+
+\end{itemize}
+本总结使用三种依据标记：\textbf{原文结果}是论文明确给出的内容；\textbf{补充推导}是帮助理解的理想模型；\textbf{待核实}表示原文不足以确认的细节。完成带读不等于独立推导考核、复现实验或验证本项目精度。
+
+建议分三遍复习：第一遍读第 2、8–11、14 节，连起整条测量链；第二遍读第 3–7 节，重看公式与窗口；第三遍按第 13 节的问题回查。无需记忆图 2 每一个峰谷。
+
+\section{一页总览：这篇论文解决什么问题？}
+
+动态过程中，顺序拍摄四幅相移图时，待测相位可能在帧间变化。作者把不同相移编码到探测器的不同像素，使一次曝光同时记录相位恢复所需的信息。
+
+完整功能链：
+
+\begin{quote}
+参考波面与测试波面 → 正交偏振输入 → 偏振转换与微偏振片阵列 → 四类交错的相移强度 → 相机一次曝光 → 邻域组合与加权 → 包裹相位 → 必要时解包裹与物理量换算。
+\end{quote}
+
+两个空间尺度要分清：\textbf{单元格（unit cell / superpixel）}描述掩膜图案怎样重复；\textbf{滑动窗口（window）}描述算法怎样组合邻域数据、估计某个位置的相位。窗口可以跨过多个单元格，并随着输出位置移动。
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{组成} & \textbf{负责的事情} & \textbf{不能自动保证的事情} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{组成} & \textbf{负责的事情} & \textbf{不能自动保证的事情} \\
+\midrule
+\endhead
+干涉仪前端 & 形成参考光与测试光，携带待测相位差 & 两路光学质量、系统误差均理想 \\
+像素化相位掩膜 & 将不同有效相移分配给不同像素 & 各相移、像素响应和对准完全准确 \\
+同步曝光 & 四类数据共享采集时间窗 & 曝光期间相位不变 \\
+邻域重建 & 从交错采样估计局部相位 & 恢复任意细的空间结构 \\
+标定与评价 & 识别系统偏差，评价稳定性和残差 & 用重复性直接证明绝对准确度 \\
+\bottomrule
+\end{longtable}
+}
+
+\section{原文位置与符号}
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{PDF 页序 / 印刷页码} & \textbf{内容} & \textbf{复习重点} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{PDF 页序 / 印刷页码} & \textbf{内容} & \textbf{复习重点} \\
+\midrule
+\endhead
+1 / 640 & §1、§2 开头 & 单帧相移与重复单元；局部相位变化小的假设 \\
+2–3 / 641–642 & 图 1、公式（1）、§2 & 正交圆偏振与检偏方向产生有效相移 \\
+3–4 / 642–643 & §3、图 2 & 滑动窗口、空间滤波、梯度与拖影误差 \\
+5 / 644 & §4.1、图 3；§4.2 开头 & 泰曼–格林、两臂波片、发散组件、中继与光阑 \\
+6 / 645 & 图 4、§5 开头、图 5 & 菲佐式、光程补偿、原始像素与相位重建 \\
+7 / 646 & §5、图 6、性能定义 & 短曝光、遮挡边缘、平均条件 \\
+8 / 647 & 表 1、§6–7 & 指标定义、总结与文献入口 \\
+\bottomrule
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\linewidth}>{\raggedright\arraybackslash}p{0.65\linewidth}}
+\toprule
+\textbf{符号} & \textbf{本总结采用的含义} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{符号} & \textbf{本总结采用的含义} \\
+\midrule
+\endhead
+\(\phi(x,y)\) & 待测的参考光与测试光相位差；本文教学模型与原式的 \(\Delta\phi\) 对应 \\
+\(\alpha\) & 微偏振片透振方向的空间角度 \\
+\(\delta=2\alpha\) & 光强公式中的有效相移；它与空间方向角不是同一概念 \\
+\(A,B\) & 光强背景与条纹调制幅度，不是图中四通道的字母标签 \\
+\(I_0,I_{90},I_{180},I_{270}\) & 按有效相移命名的四类光强；角度单位为度 \\
+\(C,S\) & 用于恢复相位的余弦通道、正弦通道 \\
+\(p,u,v\) & 像素间距；横向、纵向相邻像素的待测相位变化量 \\
+QWP / PBS & quarter-wave plate，四分之一波片 / polarizing beam splitter，偏振分束器 \\
+\bottomrule
+\end{longtable}
+}
+
+以下公式的相位符号统一采用 \(I_\delta=A+B\cos(\phi+\delta)\)。换用相反的相位差定义时，需要同步调整正弦通道的符号，不能只改一个式子。
+
+\section{掩膜怎样产生四种相移？}
+
+\subsection{正交偏振为何需要检偏器？}
+
+两路正交偏振光可以在空间上重合，但对不分析偏振的强度探测器，其理想交叉项为零。理想波片保持偏振态的正交性；它改变偏振状态，并不独自让两路正交光产生强度交叉项。
+
+检偏器把两路光投影到共同的透振方向，才得到含相位差的强度。掩膜的不同位置采用不同检偏方向，实现不同有效相移。
+
+\subsection{公式（1）及角度对应}
+
+\textbf{原文公式（1）：}
+
+\[
+I(x,y)=\frac12\left[I_r+I_s+2\sqrt{I_rI_s}\cos\bigl(\Delta\phi(x,y)+2\alpha\bigr)\right].
+\]
+
+写成 \(I_\delta=A+B\cos(\phi+\delta)\)，则
+
+\[
+A=\frac{I_r+I_s}{2},\qquad B=\sqrt{I_rI_s},\qquad \delta=2\alpha.
+\]
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{微偏振片方向 \(\alpha\)} & \textbf{有效相移 \(\delta\)} & \textbf{理想光强} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{微偏振片方向 \(\alpha\)} & \textbf{有效相移 \(\delta\)} & \textbf{理想光强} \\
+\midrule
+\endhead
+\(0^\circ\) & \(0^\circ\) & \(A+B\cos\phi\) \\
+\(45^\circ\) & \(90^\circ\) & \(A-B\sin\phi\) \\
+\(90^\circ\) & \(180^\circ\) & \(A-B\cos\phi\) \\
+\(135^\circ\) & \(270^\circ\) & \(A+B\sin\phi\) \\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{为什么是两倍角？——补充推导}
+
+取共同传播方向为 \(z\)，横向为 \(x,y\)。为避免旋向命名随观察方向变化，直接定义两种正交圆偏振基：
+
+\[
+\mathbf e_+=\frac1{\sqrt2}\begin{bmatrix}1\\i\end{bmatrix},\qquad
+\mathbf e_-=\frac1{\sqrt2}\begin{bmatrix}1\\-i\end{bmatrix}.
+\]
+
+设参考光为 \(\sqrt{I_r}e^{i\phi_r}\mathbf e_+\)，测试光为 \(\sqrt{I_s}e^{i\phi_s}\mathbf e_-\)，并定义 \(\phi=\phi_r-\phi_s\)。检偏方向单位向量为 \(\mathbf u_\alpha=(\cos\alpha,\sin\alpha)^T\)。投影得到
+
+\[
+\mathbf u_\alpha^T\mathbf e_+=\frac{e^{i\alpha}}{\sqrt2},\qquad
+\mathbf u_\alpha^T\mathbf e_-=\frac{e^{-i\alpha}}{\sqrt2}.
+\]
+
+所以检偏后的标量场为
+
+\[
+E_\alpha=\frac1{\sqrt2}\left[\sqrt{I_r}e^{i(\phi_r+\alpha)}+\sqrt{I_s}e^{i(\phi_s-\alpha)}\right].
+\]
+
+两项的相位差变为 \(\phi_r-\phi_s+2\alpha\)。取模平方便得到公式（1）。两倍角来自两种圆偏振投影分别带入的 \(+\alpha\)、\(-\alpha\)，不是因为光在同一个检偏器中传播了两次。
+
+\textbf{输入条件：}正交圆偏振可直接配合微偏振片阵列；正交线偏振通常要配合轴向合适的 QWP，将两束光分别转换成相反旋向的圆偏振。原文允许这片波片贴近阵列，也允许隔着成像光学系统放置。
+
+\textbf{器件区别：}wire-grid micropolarizer 是亚波长金属线栅微偏振片。它利用对偏振的不同透射响应工作，不能套成上一篇论文中以衍射分出四幅子图的相位光栅。
+
+\section{为什么要用小单元？滑动窗口到底测哪里？}
+
+\subsection{为什么不能简单把整块掩膜分成四大块？}
+
+直接把一幅波面图的四个区域分别赋予四种相移，它们覆盖的是不同被测位置，不能直接作为同一位置的四步相移输入。小单元把四类数据放到相邻位置，使局部相位近似一致更容易成立。
+
+如果另加光学系统，把同一被测区域复制成四幅完整图，再分别赋予相移，也可以构成同步方案；那需要对应的成像、配准与标定设计。上一篇光栅四子图方案就是相关思路。
+
+\subsection{距离很远的超像素，其待测相位当然可以不同}
+
+算法不会要求整幅图中的所有单元格具有相同相位。计算某个位置时，只组合该位置附近的数据；窗口移动到另一个位置，就估计另一个位置的相位。
+
+因此，近邻假设是局部的。即使只有一个小窗口，其各像素相位也只是可能接近，不是严格相等；局部变化较大时便会产生空间误差。
+
+\subsection{四类光强怎样恢复相位？}
+
+若四类数据对应同一相位及共同的 \(A,B\)，则
+
+\[
+C=I_0-I_{180}=2B\cos\phi,\qquad
+S=I_{270}-I_{90}=2B\sin\phi.
+\]
+
+\[
+\boxed{\phi_{\mathrm{wrap}}=\operatorname{atan2}(S,C).}
+\]
+
+atan2 保留象限，输出一个 \(2\pi\) 范围内的包裹相位。背景在相减时抵消，共同调制幅度在求角度时抵消；若各位置背景、增益或调制度不同，这些抵消就不再完全成立。
+
+\subsection{用明确的 3×3 窗口估计中心相位——教学模型}
+
+为延续我们的讨论，把九个像素位置记为
+
+\[
+\begin{matrix}a&b&c\\d&e&f\\g&h&i\end{matrix}.
+\]
+
+目标是估计中心 \(e\) 的 \(\phi_e\)。每个位置都拥有自己的待测相位：
+
+\[
+I_j=A+B\cos(\phi_j+\delta_j),\qquad j\in\{a,b,c,d,e,f,g,h,i\}.
+\]
+
+\textbf{这里先令窗口内 \(A,B\) 相同，单独研究相位随位置变化的影响。以下权重是教学选择，不是论文公开的卷积系数。}
+
+Circular 取一个中心相移为 \(180^\circ\) 的窗口：
+
+\[
+\delta_{\mathrm{cir}}=\begin{bmatrix}0&270&0\\90&180&90\\0&270&0\end{bmatrix}^{\circ}.
+\]
+
+同类像素分别平均：
+
+\[
+\bar I_0=\frac{I_a+I_c+I_g+I_i}{4},\quad
+\bar I_{90}=\frac{I_d+I_f}{2},\quad
+\bar I_{180}=I_e,\quad
+\bar I_{270}=\frac{I_b+I_h}{2}.
+\]
+
+因此
+
+\[
+\boxed{C_{\mathrm{cir}}=\frac{I_a+I_c+I_g+I_i}{4}-I_e,\quad
+S_{\mathrm{cir}}=\frac{I_b+I_h}{2}-\frac{I_d+I_f}{2}.}
+\]
+
+组合与加权，就是让角点各乘 \(1/4\)，相应边点各乘 \(1/2\)，再按相移关系相减。它使用的是相机已经测到的光强，不是在相邻位置直接测得新的光强。
+
+比较用的 Stacked 窗口为
+
+\[
+\delta_{\mathrm{stk}}=\begin{bmatrix}0&90&0\\180&270&180\\0&90&0\end{bmatrix}^{\circ},
+\]
+
+同样按相移类别平均：
+
+\[
+\boxed{C_{\mathrm{stk}}=\frac{I_a+I_c+I_g+I_i}{4}-\frac{I_d+I_f}{2},\quad
+S_{\mathrm{stk}}=I_e-\frac{I_b+I_h}{2}.}
+\]
+
+两者均以 \(\hat\phi_e=\operatorname{atan2}(S,C)\) 估计中心相位。窗口移动到下一像素后，中心相移类别可能改变，需要相应调整分类与权重；不能把这一个中心类别的系数无条件复制到全图。
+
+\subsection{输出像素多，不等于独立空间细节同样多}
+
+原文把输出点数写为 \((N-w)(M-v)\)，并承认卷积会过滤空间频率。常见无填充滑窗的计数是 \((N-w+1)(M-v+1)\)；两者边界与索引约定不能自行认定相同。
+
+重叠窗口可以产生密集输出，但相邻输出共享输入数据、彼此相关。实际空间分辨率由光学传递、像素采样和重建权重共同决定。原文实验输出 \(974\times980\) 点，也不足以反推出完整的边界处理与卷积系数。
+
+\section{图 2 的误差：从小窗口出发}
+
+\subsection{先读懂坐标与四条曲线}
+
+横轴为 45°方向的条纹倾斜量，以 waves/pixel 表示；可理解为空间相位梯度的强弱，不是振动频率。纵轴为相位误差 RMS，以 waves 表示。1 wave 相位变化等于 \(2\pi\) rad。
+
+四条曲线分别比较 Circular、Stacked，以及各自有 50\% sensor smear 的情形。这是模拟结果。
+
+\textbf{原文与图像支持的主要趋势：}无拖影时，Circular 的梯度误差显著较小；Stacked 有无拖影的曲线接近；Circular 加拖影后误差会明显增大，图中还出现起伏。Circular 加拖影在小梯度处可能比 Stacked 更差，所以不能说 Circular 在所有条件下都更优。
+
+\subsection{为什么空间变化会使估计相位偏离中心值？}
+
+目标是 \(\phi_e\)，输入却包括 \(\phi_a,\ldots,\phi_i\)。这些相位通过不同的正弦、余弦组合进入 \(C,S\)。如果两个通道受到的作用不相同，最终角度就会偏。
+
+小扰动下，设理想通道为 \(C_0,S_0\)，污染为 \(\Delta C,\Delta S\)，则补充推导给出
+
+\[
+\Delta\phi\approx\frac{C_0\Delta S-S_0\Delta C}{C_0^2+S_0^2}.
+\]
+
+两路都乘相同因子时，角度不变；受不同比例影响时，一般会偏。调制度很低、分母很小时，相位也更容易受噪声影响。
+
+\subsection{一个可以复算的数值例子}
+
+设 \(A=100,B=40\)，实际待测相位为
+
+\[
+\phi_j=\begin{bmatrix}5&25&45\\25&45&65\\45&65&85\end{bmatrix}^{\circ}.
+\]
+
+中心真实相位为 \(45^\circ\)，向右或向下一个像素增加 \(20^\circ\)。逐点计算 \(I_j=100+40\cos(\phi_j+\delta_j)\)，再使用第 5.4 节的窗口权重：
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.18\linewidth}>{\raggedright\arraybackslash}p{0.15\linewidth}>{\raggedright\arraybackslash}p{0.15\linewidth}>{\raggedright\arraybackslash}p{0.2\linewidth}>{\raggedright\arraybackslash}p{0.21\linewidth}}
+\toprule
+\textbf{教学窗口} & \textbf{\(C\)} & \textbf{\(S\)} & \textbf{估计相位} & \textbf{相位误差} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{教学窗口} & \textbf{\(C\)} & \textbf{\(S\)} & \textbf{估计相位} & \textbf{相位误差} \\
+\midrule
+\endhead
+Circular & 53.2599 & 53.1570 & \(44.9446^\circ\) & \(-0.0554^\circ\) \\
+Stacked & 51.5542 & 54.8628 & \(46.7808^\circ\) & \(+1.7808^\circ\) \\
+\bottomrule
+\end{longtable}
+}
+
+该例的 Circular 两通道更接近理想的相同比例关系，所以误差更小。它验证这组教学权重下的机制，不能当成论文图 2 的数据。
+
+\subsection{对称平均为什么仍有误差？——补充推导}
+
+\[
+\frac{\cos(\phi+\Delta)+\cos(\phi-\Delta)}2=\cos\phi\cos\Delta.
+\]
+
+对称位置平均能抵消部分变化，但仍留下 \(\cos\Delta\) 因子。关键是 \(C,S\) 是否留下相同因子。
+
+令窗口坐标为 \(x,y\in\{-p,0,p\}\)，待测相位为线性场
+
+\[
+\phi(x,y)=\phi_e+g_x\,x+g_y\,y,\qquad u=g_xp,\quad v=g_yp.
+\]
+
+对 Circular，有
+
+\[
+\begin{aligned}
+\bar I_0&=A+B\cos\phi_e\cos u\cos v,\\
+\bar I_{180}&=A-B\cos\phi_e,\\
+\bar I_{90}&=A-B\sin\phi_e\cos u,\\
+\bar I_{270}&=A+B\sin\phi_e\cos v.
+\end{aligned}
+\]
+
+相减得
+
+\[
+C_{\mathrm{cir}}=B\cos\phi_e(1+\cos u\cos v),\qquad
+S_{\mathrm{cir}}=B\sin\phi_e(\cos u+\cos v).
+\]
+
+两个因子的差是
+
+\[
+1+\cos u\cos v-\cos u-\cos v=(1-\cos u)(1-\cos v).
+\]
+
+当 \(u,v\) 很小时，这个差很小。对上述 Stacked 权重，同理得到
+
+\[
+C_{\mathrm{stk}}=B\cos\phi_e\cos u(1+\cos v),\qquad
+S_{\mathrm{stk}}=B\sin\phi_e(1+\cos v).
+\]
+
+两个通道相差一个 \(\cos u\) 因子，表现出与排列方向有关的梯度敏感性。
+
+\textbf{必须保留的修正：}这组对称 3×3 教学权重下，两种排列都抵消了线性相位场的一阶影响。不能把先前 2×2 单元分析的误差阶次套过来，也不能用本推导证明图 2 中 Stacked 曲线为什么近似线性。实际误差还取决于权重、曲率、背景、调制度和采样。
+
+\subsection{同列拖影怎样进入同一个窗口？}
+
+采用一个明确的简化探测器模型：左、中、右列分别被加上共同污染 \(D_L,D_M,D_R\)，同一列内污染相同。这是污染的假设，不是待测相位相同的假设。
+
+\[
+\Delta I=\begin{bmatrix}D_L&D_M&D_R\\D_L&D_M&D_R\\D_L&D_M&D_R\end{bmatrix}.
+\]
+
+代入同样的 3×3 权重：
+
+\[
+\Delta C_{\mathrm{cir}}=\frac{D_L+D_R}{2}-D_M,\qquad
+\Delta S_{\mathrm{cir}}=-\Delta C_{\mathrm{cir}}.
+\]
+
+Circular 一般会留下列间污染差。Stacked 的相减两侧包含相同的列权重，因此
+
+\[
+\Delta C_{\mathrm{stk}}=0,\qquad\Delta S_{\mathrm{stk}}=0.
+\]
+
+这解释一种列拖影抵消机制。真实污染若沿列变化，或包含乘性误差等，抵消不再保证完全成立。原文所谓列信号与相位无关，可用理想局部互补强度和来帮助理解：\(I_0+I_{180}=2A\)、\(I_{90}+I_{270}=2A\)；不是每个像素的光强都与相位无关。
+
+\subsection{图 2 应理解到什么程度？}
+
+应能解释梯度为何造成空间混合误差、Circular 为何通常更有利于梯度抵消、Stacked 为何更容易抵消列污染。具体峰谷位置、50\% 拖影的数学定义、完整权重和边界处理仍待核实。当前模型没有推导出 Circular 拖影曲线的全部起伏，不补写确定原因，也无需背诵这些峰谷。
+
+\section{不同方案的误差来源应怎样比较？}
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{方案或环节} & \textbf{主要检查对象} & \textbf{分析入口} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{方案或环节} & \textbf{主要检查对象} & \textbf{分析入口} \\
+\midrule
+\endhead
+顺序四步采集 & 四帧期间相位和背景是否变化 & 明确各帧时间与目标时刻 \\
+同步四幅完整子图 & 空间配准、相移、增益、成像差异 & 找到四图中同一物点的对应位置 \\
+像素交错加滑动窗口 & 邻近相位变化、采样、权重、像素响应 & 从中心目标和窗口内全部位置出发 \\
+有限曝光 & 曝光时间内的积分、对比度变化 & 对整个时间窗的光强积分 \\
+光学系统 & 偏振像差、寄生反射、波面误差、相干伪影 & 追踪元件与参考/测试路径 \\
+\bottomrule
+\end{longtable}
+}
+
+不能凭单个理想例子断言一种方案全面优于另一种。先明确测量对象、空间变化、曝光条件、光源和标定，再比较同一定义下的指标。
+
+\section{图 3：泰曼–格林光路逐件复习}
+
+\subsection{从光源到相机}
+
+从图右上角开始：单模激光器 → 入射光学元件与折转镜 → PBS → 测试臂、参考臂 → 镜面反射并往返经过两臂 QWP → PBS 右侧共同出口 → 无焦中继 → 相位掩膜 → 相机。
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\linewidth}>{\raggedright\arraybackslash}p{0.65\linewidth}}
+\toprule
+\textbf{元件} & \textbf{作用与复习重点} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{元件} & \textbf{作用与复习重点} \\
+\midrule
+\endhead
+PBS & 按正交线偏振分路；返回偏振改变后，两臂可从共同出口输出 \\
+测试镜、参考镜 & 分别形成测试波面与参考波面；系统误差仍可能进入相位差 \\
+两臂 QWP & 配合镜面反射与往返传播，改变返回光的线偏振方向 \\
+Diverger & 在图示曲面测量配置中形成合适的发散测试波面 \\
+无焦中继 & 把输入瞳面成像到相位掩膜处，建立空间对应 \\
+光阑 & 控制光学带宽，使成像与像素采样匹配 \\
+相位掩膜与相机 & 分配相移、记录交错强度；后续邻域计算局部相位 \\
+\bottomrule
+\end{longtable}
+}
+
+\subsection{为什么图中有 Diverger？}
+
+我们曾问：曲面为何需要发散光？核心是这项配置的波面匹配和返回路径。
+
+对于理想凹球面，各处法线通过曲率中心。如果光从曲率中心附近发散到镜面，就近似沿当地法线入射，反射后沿原路返回；再经过发散组件，可恢复为返回的准直光束。真实面形偏差会体现在返回波面中。
+
+要分清\textbf{曲率中心}和\textbf{焦点}：近轴球面镜的焦距约为曲率半径的一半。这里讨论沿法线原路返回，使用的是曲率中心，不能随口称为镜面焦点。
+
+这并不意味着所有曲面测量都必须用发散光。非球面、凸面或其他测试几何需要相应的波面匹配设计；真实面形偏差存在时，也不要求每条实际光线严格原路返回。
+
+\subsection{两臂 QWP 为什么能把光送向相机？}
+
+理想 PBS 透射 p 偏振、反射 s 偏振，p/s 相对于分束面的入射面定义。对合适设置的波片，轴向与入射线偏振成 45°；近法向、理想反射等条件下，往返作用等效于半波延迟，使线偏振转为原来的正交方向：
+
+\[
+\text{线偏振}\ \longrightarrow\ \text{圆偏振}\ \longrightarrow\ \text{反射后再次通过QWP}\ \longrightarrow\ \text{正交线偏振}.
+\]
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.18\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.29\linewidth}}
+\toprule
+\textbf{路径} & \textbf{去程} & \textbf{返回} & \textbf{在图示 PBS 的出口} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{路径} & \textbf{去程} & \textbf{返回} & \textbf{在图示 PBS 的出口} \\
+\midrule
+\endhead
+测试臂 & s 被反射向左 & 变成 p & 透射向右 \\
+参考臂 & p 透射向下 & 变成 s & 反射向右 \\
+\bottomrule
+\end{longtable}
+}
+
+相位延迟 90°、波片轴向 45°、返回线偏振旋转 90°是不同物理量。不能用“90°加90°”直接解释所有偏振方向变化。以上是图 3 的理想工作模型，原文没有给出完整轴向与反射 Jones 链。
+
+\subsection{两臂波片与掩膜前波片，不要混为同一用途}
+
+两臂 QWP 在往返结构中帮助 PBS 分配返回出口。掩膜分析所需的 QWP 则把共同输出中的两种正交线偏振转换成适合微偏振片相移编码的偏振态。后者可以与阵列集成或单独放置；图 3 没有逐一展开模块内部所有层。
+
+返回光在空间上重合后仍可能正交，必须经过适当的偏振转换和分析，才能得到用于相位恢复的强度交叉项。
+
+\subsection{无焦中继与光阑}
+
+原文明确说：无焦中继把输入瞳面成像到掩膜平面。无焦描述系统整体性质，不等于没有共轭成像关系。这里需要的是让测量口径中的位置与掩膜、探测器位置具有明确对应。
+
+光阑开大，衍射斑通常变小，系统能传递更高空间频率；光阑缩小，细结构受到抑制，同时降低分辨能力。相机离散采样无法正确记录任意细的条纹，因此需要限制光学带宽，降低混叠风险。
+
+作者建议掩膜处的衍射极限光斑直径约为两个有效像素。它是光学带宽与采样匹配的设计建议，不是对任意波面都无混叠的完整保证，也不能在未确认“有效像素”定义前直接指定项目光阑或光斑尺寸。
+
+\section{图 4：菲佐式比较与光程补偿}
+
+\subsection{参考光在哪里形成？}
+
+光先遇到参考面：一部分反射成为参考光；另一部分透射到待测面，反射后再次穿过参考面，成为测试光。许多光学元件为两路返回光共有，共有相位变化可能在相位差中抵消。
+
+泰曼–格林是在分开的参考臂、测试臂形成两路光；菲佐式由前后排列的参考面与待测面形成两路反射。共路程度较高有助于减少部分误差，但两面之间仅测试光经过的路径仍可能受扰动。
+
+原文指出：同轴菲佐配置具有较好的共路性，但需要光程匹配；图 4 所示离轴配置需要注意离轴像差。相位传感部分的共路性，不意味着整台泰曼–格林的两臂也成为完全共路。
+
+\subsection{为什么有光程补偿模块？——补充物理模型}
+
+在空气中近法向入射，参考面与待测面相距 \(d\)，测试反射相对参考反射约多走 \(2d\)。图下方的 PBS、波片与反射镜构成补偿模块，移动 M2 可调节提前引入的光程差。
+
+以两条照明路径长、短配对为简化理解：
+
+\[
+L_{\mathrm{短}}+L_{\mathrm{测试}}\approx L_{\mathrm{长}}+L_{\mathrm{参考}}.
+\]
+
+选定两路光的总光程差要落在光源能保持相干的范围内。短相干长度光源尤其需要匹配；长相干激光并非只要两路长度不同就不能干涉。
+
+本式只说明补偿原理。原文没有展开所有光束组合、光源相干函数、选择条件和完整偏振矩阵，不能据此声称复现了图 4 的全部工作细节。
+
+光程匹配主要涉及时间相干性；扩展光源改变空间相干性的作用需要另行分析。二者都与相干有关，却不能用同一个“相干长度变短”概括全部效果。
+
+\section{图 5–6：实验分别证明了什么？}
+
+\subsection{传感器条件}
+
+作者报告掩膜与 CCD 像素节距均为 \(9\,\mu\mathrm m\)，阵列为 1000×1000 像素，掩膜直接贴合在 CCD 前方。这些是作者装置参数，不是本项目已经拥有的器材或应直接采用的参数。
+
+\subsection{图 5：原始强度、条纹和包裹相位}
+
+作者用泰曼–格林测量平面镜，并通过相对倾斜产生多条条纹。
+
+\begin{itemize}
+\item 左侧：原始数据中 24×17 像素的放大区域。相邻像素相移不同，强度可以明显不同，出现棋盘式明暗。
+\item 中间：按相移类别抽取数据并整理出的条纹图；截面光强近似正弦。
+\item 右侧：3×3 卷积算法计算的包裹相位，截面呈锯齿。倾斜对应近似线性相位；数值跨过一个 \(2\pi\) 范围边界时跳回另一端，所以形成锯齿。
+
+\end{itemize}
+相位图的跳变不代表镜面有真实台阶。解包裹把相差整数个 \(2\pi\) 的部分连接起来，但低调制度、遮挡和过密采样条件下可能失败。
+
+输出相位图为 974×980 点。作者还报告，在每个方向约 170 条倾斜条纹时仍有良好对比度，继续增密开始出现解包裹错误；这是特定装置结果，不能泛化为所有相机或算法的极限。
+
+中间显示图和右侧相位图分别承担可视化与相位重建作用。相位计算需要利用不同相移类别的邻域信息，不能理解成只从中间那一幅显示条纹就已完成本文的四相移解调。
+
+\subsection{图 6 左：分桌放置与短曝光}
+
+作者用泰曼–格林测量曲率半径为 2 m 的镜子，干涉仪与镜子在不同台面；曝光小于 \(60\,\mu\mathrm s\)。它展示了这种布置下可以取得测量结果。
+
+同步采集减少四帧之间的时间错位；短曝光减少一次曝光中的积分模糊。原文未给出该项展示的完整振动频率、幅值和动态真值，因此不能由此确定抗振带宽、最大振幅或可跟踪频率。曝光时间也不等于相机帧间隔。
+
+\subsection{图 6 右：遮挡边缘与空间重建}
+
+作者用大口径菲佐干涉仪测量直径 400 mm 的平面镜，并放入 spider 遮挡支架。目的是展示对高空间频率内容的处理能力，以及边缘附近没有明显畸变或振铃的结果。
+
+高空间频率表示随位置快速变化，例如锐利遮挡边缘；不是物体随时间高速振动。遮挡区域本身缺少有效信号，不代表那里也测出了面形；多个不连通区域的绝对相位关系也不能仅凭这张图判断。
+
+这里是示例展示，缺少边缘误差定量曲线与完整对照，不能提升为任意遮挡条件都无误差的证明。
+
+\section{表 1：准确度、精密度、重复性与平均条件}
+
+\subsection{先看统计条件}
+
+作者做了 10 组测量，每组为 16 次采集的平均，共涉及 160 次采集。表中包含平均的作用，不能直接作为单次曝光性能；图 6 的曝光展示与表 1 的完整测试条件也不能自动认定完全相同。
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{作者指标} & \textbf{数值（waves RMS）} & \textbf{原文描述与理解边界} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{作者指标} & \textbf{数值（waves RMS）} & \textbf{原文描述与理解边界} \\
+\midrule
+\endhead
+Uncalibrated Accuracy & 0.0039 & 作者用全部 160 次的逐像素平均结果定义，称主要受 PBS 限制；真实值与误差计算依据未充分展开 \\
+Precision & 0.0007 & 逐像素减去校准面形后偏差的评价；原文未给出完整统计公式 \\
+Repeatability & 0.00008 & 10 组结果的标准差，反映重复测量稳定性 \\
+\bottomrule
+\end{longtable}
+}
+
+作者使用的术语应与其定义一起记录。尤其是“未校准准确度”，平均面形的 RMS 本身不自动等于对已知真实面的误差，不能补成完整的绝对准确度或溯源不确定度结论。
+
+\subsection{为什么重复性小，仍然可能存在偏差？}
+
+仪器可能每次都把同一个位置测高一点。各次结果接近，说明稳定；相同偏差持续存在，说明仍有系统误差。若校准能识别并减去它，校准后的残差可能更小。
+
+平均通常可减小部分随机波动，但固定偏差不会因为平均次数增多就自动消失；只有噪声独立等条件下，才能使用常见的随平均次数平方根下降的估计。本文不据此反推单帧噪声。
+
+\subsection{waves 与面形高度不要混用}
+
+若 \(W\) 表示相位/波前光程差的 waves 数，则
+
+\[
+\phi=2\pi W,\qquad \mathrm{OPD}=\lambda W.
+\]
+
+对空气中近法向反射表面高度偏差，另有
+
+\[
+h\approx\frac{\mathrm{OPD}}2=\frac{\lambda\phi}{4\pi}.
+\]
+
+这是条件明确的物理换算。本文表格没有在同一处充分展开波长及软件报告量的约定，因此不把三个数字直接换成确定的纳米面形指标。
+
+\section{与上一篇论文及本项目的关系}
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.46\linewidth}}
+\toprule
+\textbf{比较项} & \textbf{钱克矛等（2001）} & \textbf{Millerd 等（2005）} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{比较项} & \textbf{钱克矛等（2001）} & \textbf{Millerd 等（2005）} \\
+\midrule
+\endhead
+同步编码 & 光栅形成主要空间通道，配合波片和检偏片 & 微偏振片阵列把相移交错编码到像素 \\
+数据组织 & 四幅完整子图，需要同物点对应 & 邻域内不同相移像素，需要局部重建 \\
+本轮已读装置 & 马赫–曾德尔与散斑干涉 & 泰曼–格林与菲佐式 \\
+共同条件 & 偏振、相移、空间对应、曝光和响应都需审查 & 同样如此，并突出局部梯度与像素采样 \\
+\bottomrule
+\end{longtable}
+}
+
+两者都利用偏振分析构造相移，但光路几何、公式符号和数据组织不能混用。本文器件中的亚波长线栅，也不能等同于上一篇用于空间衍射分光的相位光栅。
+
+本项目已有理想顺序四步与理想同步四通道仿真，说明时间采集方式的差异。它没有自动包含像素交错、滑窗、曝光积分、PBS 误差或相干噪声。理想同步误差接近数值精度，是理想假设下的结果，不是实物精度。
+
+后续可考虑的仿真是：固定同一真值波面，显式生成四相移掩膜采样，再用明确权重重建，逐项改变梯度、曲率、响应或拖影。本项是由阅读引出的候选任务，本次没有新增仿真程序或声称完成复现。
+
+相干噪声专题仍按计划暂缓；本文让我们建立同步检测链，后续仍需区分寄生反射、散斑、时间相干性与空间相干性，再选择抑制方法。
+
+\section{我们对话中的疑问与修正索引}
+
+{\small
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\linewidth}>{\raggedright\arraybackslash}p{0.65\linewidth}}
+\toprule
+\textbf{当时的问题} & \textbf{应保留的解释} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{当时的问题} & \textbf{应保留的解释} \\
+\midrule
+\endhead
+为何不用整块四等分？ & 同一波面直接四等分覆盖不同位置；小单元使四相移数据局部相邻；光学复制四图是另一种完整配置 \\
+相距很远的超像素相位也不同？ & 允许不同，每个局部窗口估计自己的目标位置，不要求全场同相位 \\
+小窗口提取哪个位置的光强？ & 输入是窗口内各像素已记录的光强；输出是对中心位置待测相位的估计 \\
+组合与加权怎样做？ & 先按相移类别组合，乘明确权重，再构造 C、S 并取 atan2 \\
+为什么认为同一列相位相同？ & 不应默认相同；每像素有自己的待测相位。共同列污染是另一个可明确声明的模型 \\
+为何之前用 2×2 解释误差不妥？ & 它没有对应已经讲过的滑动窗口；需重新追踪窗口位置、权重和中心目标 \\
+Circular 为什么通常误差小？ & 在相应权重下，空间对称性使两通道的梯度影响更接近；不是普遍零误差 \\
+Stacked 为什么抗列拖影？ & 在简化模型中，相减两侧具有相同列污染权重，污染可抵消 \\
+图 2 每个峰谷都要记住吗？ & 理解来源与主要趋势；精确峰谷和模型尚未核实，不猜测、不背诵 \\
+曲面为什么用 Diverger？ & 图示球面配置要匹配测试波面，使理想光线近似沿法线往返；不是所有曲面都必须发散照明 \\
+两臂 QWP 有什么用？ & 往返偏振变换配合 PBS，把返回光送入共同出口 \\
+无焦系统为何还能成像？ & 系统无焦与两个指定平面共轭不矛盾；这里把瞳面成像到掩膜处 \\
+相位截面为何像锯齿？ & 倾斜对应相位斜坡，包裹范围导致 \(2\pi\) 跳变；不是镜面台阶 \\
+高空间频率就是高速变化吗？ & 前者随空间位置变化，后者随时间变化，分别检查采样和曝光 \\
+重复性好就准确吗？ & 稳定结果仍可能有固定偏差，必须看校准、真实值与统计条件 \\
+\bottomrule
+\end{longtable}
+}
+
+\section{复习时必须能连起来的五句话}
+
+\begin{enumerate}
+\item 单帧同步相移减少帧间时间误差，但有限曝光和空间误差仍然存在。
+\item 单元格负责重复编码，滑动窗口负责估计局部相位；每个像素可以有不同待测相位。
+\item 窗口把不同位置的数据送入 C、S，两通道受到的作用不相同，就可能产生相位偏差。
+\item 泰曼–格林两臂、偏振路由、波面匹配、成像和采样共同决定可测条件。
+\item 读实验指标先找定义、校准、平均次数和对照依据；作者结果不能直接写成本项目性能。
+
+\end{enumerate}
+复习用的分析顺序：\textbf{要测哪个位置 → 实际用了哪些数据 → 假设是什么 → 哪些因素破坏假设 → 怎样影响相位 → 实验用什么证据验证。}
+
+\section{当前阅读进度与下一入口}
+
+阶段 3 的 Millerd 论文已完成全文带读及本次总结；以上疑点继续保留，不因标记完成就视为已经解决。阶段 1 的博士论文框架与阶段 2 的钱克矛论文已完成。
+
+下一阶段按固定计划回到徐晨《动态干涉测试技术与应用研究》：先读 PDF 第 21 页的 §2.1，再进入 §2.2 的系统光路；随后依次选读第 3 章光源、第 4 章标定与误差。已掌握偏振基础作简要对照，新增菲佐式条件逐项辨认。完成这些后再读郑东晖等（2016）。
+
+\textbf{本次只整理总结，不提前开始博士论文技术章节。}
+\end{document}

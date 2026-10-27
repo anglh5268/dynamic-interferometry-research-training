@@ -1,0 +1,596 @@
+\documentclass[UTF8,fontset=fandol,11pt,a4paper]{ctexart}
+\usepackage[margin=23mm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs,longtable,tabularx}
+\usepackage{xcolor,enumitem,fancyhdr,tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage[unicode,colorlinks=true,linkcolor=teal,urlcolor=teal]{hyperref}
+\definecolor{ink}{HTML}{18384A}
+\definecolor{accent}{HTML}{007F86}
+\definecolor{pale}{HTML}{EEF6F7}
+\ctexset{section={format=\Large\bfseries\color{ink}},subsection={format=\large\bfseries\color{ink}}}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=2em}
+\renewcommand{\arraystretch}{1.3}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small 偏振相移原理与完整推导}
+\fancyhead[R]{\small 科研训练复习笔记}
+\fancyfoot[C]{\thepage}
+\newcommand{\ii}{\mathrm i}
+\newcommand{\ee}{\mathrm e}
+\newcommand{\note}[1]{\par\noindent\colorbox{pale}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\textbf{复习重点：}#1}}\par}
+\newcommand{\quest}[2]{\subsection*{疑问：#1}#2}
+\newcommand{\colvec}[2]{\begin{bmatrix}#1\\#2\end{bmatrix}}
+\begin{document}
+\begin{center}
+{\LARGE\bfseries\color{ink} 四分之一波片与偏振相移}\\[6pt]
+{\Large 原理、矩阵来源与四步相位恢复}\\[8pt]
+{\small 根据科研训练对话整理\quad 2026 年 10 月 5 日}
+\end{center}
+
+\noindent\textbf{本笔记的范围。}对应钱克矛、缪泓、伍小平《一种用于动态过程测量的实时偏振相移方法》，《光学学报》2001 年，21(1)：64--67，第 1 节、图 1 与式 (1)--(3)。我们已经讨论了图中坐标、波片作用、两种矩阵的来源，以及从输出电场到四步相位恢复的过程。本笔记把中间展开全部补齐，供反复阅读；不代表完成该论文后续光栅和实验部分的带读。
+
+\noindent\textbf{符号约定。}本文采用与原文矩阵一致的相位符号。另用明确的 $I$ 与 $J$ 区分直接计算的光强和用于对应原文的归一化强度，避免把原文式 (1)、式 (2) 之间的公共倍率差悄悄略去。
+
+\note{完整路线是：辨认光路与坐标 $\rightarrow$ 理解波片相位延迟 $\rightarrow$ 推偏振片矩阵 $\rightarrow$ 推波片矩阵 $\rightarrow$ 求输出电场 $\rightarrow$ 求光强 $\rightarrow$ 四步恢复相位。每一步都说明它在物理上做了什么。}
+
+\tableofcontents
+
+\clearpage
+\section{先读懂图 1：光向哪里走，电场沿哪里振动}
+\subsection{三个元件与两束光}
+原图中的 \textit{beam splitter} 是分束器，在这里用于合束；\textit{quarter-wave plate} 是四分之一波片；\textit{analyzer} 是检偏器，即一块线偏振片。原图是偏振相移的局部原理图，不是整台干涉仪的完整实验光路。
+
+\begin{center}
+\begin{tikzpicture}[>=Latex,font=\small]
+\draw[->,thick] (-3,0)--(-0.3,0);
+\draw[->,thick] (0,-1.5)--(0,-0.25);
+\draw[thick] (-0.4,-0.4)--(0.4,0.4);
+\draw[->,thick] (0.4,0)--(4.8,0);
+\draw[accent,very thick] (1.7,-0.55)--(1.7,0.55);
+\draw[accent,very thick] (3.3,-0.55)--(3.3,0.55);
+\node[above] at (-1.7,0) {输入光 1};
+\node[left] at (0,-1) {输入光 2};
+\node[above] at (0,0.55) {合束器};
+\node[below,align=center] at (1.7,-0.65) {四分之一波片\\快轴与 $x$ 成 $45^\circ$};
+\node[above,align=center] at (3.3,0.6) {检偏器\\方向角 $\theta$};
+\node[above] at (4.3,0) {沿 $z$ 传播};
+\end{tikzpicture}
+\end{center}
+这张示意图由笔记重新绘制，帮助辨认元件顺序；具体偏振标记以原论文图 1 和正文定义为准。
+
+\subsection{传播方向和偏振方向是两件事}
+合束后，两束光都沿 $z$ 方向传播。电场在垂直于 $z$ 的平面内振动；这个平面中选取互相垂直的 $x$、$y$ 方向。$E_x$、$E_y$ 中的下标表示电场分量的方向，不表示光分别沿 $x$、$y$ 传播。
+\begin{equation}
+\mathbf E_{\mathrm{in}}=E_x\hat{\mathbf x}+E_y\hat{\mathbf y},\qquad
+\mathbf k\parallel\hat{\mathbf z}.
+\end{equation}
+原图右上角是三维坐标的二维示意。斜画的轴用于表现第三维，纸面上的夹角不等于实际空间中的夹角。
+
+\quest{为什么下方 $E_y$ 输入支路上画的是横线，看起来沿 $z$？}{
+按通常的偏振标记理解，短线表示该输入光在纸面内的电场方向。该支路在合束前向上传播，水平电场仍与其传播方向垂直。经过反射，光向右传播，相应的纸面内偏振方向变为竖直。结合正文对波片前光场的定义，$E_y$ 应按合束后的 $y$ 偏振分量理解。不能把输出段的 $z$ 传播方向直接套到反射前的输入段，也不能把支路标签理解为整个路径始终不变的全局方向。}
+
+\note{讨论后面的 Jones 向量时，位置固定在合束后、波片前：两束光共线传播，一束贡献 $E_x$，另一束贡献 $E_y$。}
+
+\clearpage
+\section{符号和复数：为什么要写成 Jones 向量}
+\begin{longtable}{p{0.22\linewidth}p{0.70\linewidth}}
+\toprule
+符号 & 含义\\\midrule
+$E_x,E_y$ & 输入电场在 $x,y$ 方向上的复振幅。\\
+$a,b$ & 两束光的非负实振幅；局部推导省略其空间坐标。\\
+$\varphi_1,\varphi_2$ & 两束光各自携带的相位。\\
+$\varphi=\varphi_2-\varphi_1$ & 待测相位差，正负号按原论文定义。\\
+$\theta$ & 检偏器透振方向与 $x$ 轴的空间夹角。\\
+$\delta$ & 波片在快、慢轴之间产生的相位延迟量大小。\\
+$\lambda,d,n_f,n_s$ & 真空波长、波片厚度、快轴和慢轴方向对应的折射率。\\
+$\ii$ & 虚数单位，$\ii^2=-1$。\\
+$E^*$、$|E|^2$ & 复共轭；模平方 $|E|^2=EE^*$。\\
+$E_{Qx},E_{Qy}$ & 波片后、检偏器前的两个电场分量。\\
+$E_\theta$ & 检偏器后沿其透振方向的电场复振幅。\\
+\bottomrule
+\end{longtable}
+
+一个复数 $a\ee^{\ii\varphi}$ 同时记录振幅 $a$ 和相位 $\varphi$。欧拉公式为
+\begin{equation}
+\ee^{\ii\varphi}=\cos\varphi+\ii\sin\varphi.
+\end{equation}
+乘以 $\ee^{\ii\beta}$ 会增加相位 $\beta$，不改变振幅，因为其模为 1：
+\begin{equation}
+a\ee^{\ii\varphi}\ee^{\ii\beta}=a\ee^{\ii(\varphi+\beta)}.
+\end{equation}
+特别地，$\ii=\ee^{\ii\pi/2}$，所以乘以 $\ii$ 表示增加 $90^\circ$ 相位。
+
+\subsection{Jones 向量记录两个横向分量}
+\begin{equation}
+\mathbf E_{\mathrm{in}}=
+\colvec{E_x}{E_y}=
+\colvec{a\ee^{\ii\varphi_1}}{b\ee^{\ii\varphi_2}}.
+\end{equation}
+上、下两项是同一位置上总电场的两个分量。在本论文的输入设定中，它们来自两束正交线偏振光。它们合在一起构成总光场；讨论波片把线偏振变为圆偏振时，要分别追踪每束输入光，而不是默认它们叠加后的总场一定是圆偏振。
+
+\note{空间角度和相位角不是同一个量：快轴安装角 $45^\circ$、检偏角 $\theta$ 描述方向；相位差 $90^\circ$ 描述振动的先后关系。}
+
+\clearpage
+\section{四分之一波片的物理原理}
+\subsection{相位差从哪里来}
+双折射材料对快轴、慢轴方向的偏振分量具有不同折射率。理想模型下，两者通过同一厚度 $d$ 的波片，积累不同的相位。
+
+为使下面的符号与原文矩阵一致，本文取实际电场的时间表示为
+\begin{equation}
+\mathbf E_{\mathrm{real}}(t)=\operatorname{Re}\{\mathbf E\ee^{\ii\omega t}\}.
+\end{equation}
+沿传播方向走过材料厚度 $d$，复振幅乘以 $\ee^{-\ii k_0nd}$，其中 $k_0=2\pi/\lambda$。因此两个轴的相位因子分别是
+\begin{equation}
+q_f=\ee^{-\ii k_0n_fd},\qquad q_s=\ee^{-\ii k_0n_sd}.
+\end{equation}
+相位延迟量大小为
+\begin{equation}
+\boxed{\delta=k_0(n_s-n_f)d=\frac{2\pi}{\lambda}(n_s-n_f)d.}
+\end{equation}
+快轴和慢轴的名称对应这两个分量不同的相位传播特性。
+
+\subsection{为什么叫四分之一波片}
+在设计波长下，四分之一波片让相对相位延迟等效为 $\pi/2$。以等效零级延迟表示：
+\begin{equation}
+(n_s-n_f)d=\frac{\lambda}{4}
+\quad\Longrightarrow\quad
+\delta=\frac{2\pi}{\lambda}\frac{\lambda}{4}=\frac\pi2=90^\circ.
+\end{equation}
+多级波片可以相差额外的整数个 $2\pi$，偏振作用等效；本笔记讨论等效 $90^\circ$ 情形。波片有设计波长，离开该波长时实际延迟一般会变化。
+
+\quest{这个 $90^\circ$ 是由 $45^\circ$ 安装角产生的吗？}{
+不是。折射率差与厚度决定相位延迟；$45^\circ$ 安装角决定输入线偏振光在快、慢轴上分解出的振幅相等。两项条件共同使每束输入线偏振光变为圆偏振。}
+
+\subsection{为什么后面写成 $+45^\circ$ 和 $-45^\circ$ 相位}
+令 $\bar n=(n_f+n_s)/2$，可以将两个相位因子分成公共因子和相对因子：
+\begin{align}
+q_f&=\ee^{-\ii k_0\bar n d}\ee^{+\ii\delta/2},\\
+q_s&=\ee^{-\ii k_0\bar n d}\ee^{-\ii\delta/2}.
+\end{align}
+公共因子对整个向量相同，不改变偏振状态，也不影响这里随后计算的光强。因此省去它，取 $\delta=\pi/2$，就得到
+\begin{equation}
+\boxed{q_f=\ee^{\ii\pi/4},\qquad q_s=\ee^{-\ii\pi/4}.}
+\end{equation}
+这里的 $\pm45^\circ$ 是相位基准重选后的结果，不是绝对传播相位，也不是又把元件旋转了两个角度。如果换用另一种时间因子约定，复数相位符号会随之改变；所有步骤必须保持一致。
+
+\clearpage
+\section{为什么能从线偏振变成圆偏振}
+\subsection{先看一束光}
+一束线偏振光与快轴成 $45^\circ$ 时，在两个轴上的分量振幅相等。波片前它们同步或反相振动，合成方向固定。波片后它们相差 $90^\circ$。
+
+适当选择时间起点和轴方向，可以把波片后的两个实分量写成
+\begin{equation}
+E_f(t)=C\cos\omega t,\qquad E_s(t)=C\sin\omega t.
+\end{equation}
+于是
+\begin{equation}
+E_f^2(t)+E_s^2(t)=C^2,
+\end{equation}
+电场矢量端点在快、慢轴平面上画出一个圆。
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+时间 & 快轴分量 & 慢轴分量\\\midrule
+$0$ & $C$ & $0$\\
+$T/4$ & $0$ & $C$\\
+$T/2$ & $-C$ & $0$\\
+$3T/4$ & $0$ & $-C$\\
+\bottomrule
+\end{tabular}
+\end{center}
+这里的圆是一个固定空间点处电场矢量随时间的变化轨迹，光仍沿 $z$ 方向传播。
+
+\subsection{为什么两束输入光的旋向相反}
+在快、慢轴上，$x$ 输入的投影是“一正一负”，$y$ 输入的投影是“两项同号”。波片给两者施加相同的轴向延迟后，得到相反的电场旋转方向。用后面推得的矩阵直接检查：
+\begin{equation}
+Q\colvec{1}{0}=\frac1{\sqrt2}\colvec{1}{\ii},\qquad
+Q\colvec{0}{1}=\frac1{\sqrt2}\colvec{\ii}{1}.
+\end{equation}
+两个输出向量的共轭内积为零：
+\begin{equation}
+\frac12\begin{bmatrix}1&-\ii\end{bmatrix}\colvec{\ii}{1}
+=\frac12(\ii-\ii)=0.
+\end{equation}
+这说明它们仍然是正交偏振态。左右旋的名称依赖观察方向和符号约定，本笔记只使用“相反旋向”，避免混淆。
+
+\note{波片改变偏振状态，但正交的两束输出光还需要共同的检偏方向，才能出现这里要测量的干涉项。}
+
+\clearpage
+\section{偏振片矩阵：从投影逐项展开}
+\subsection{先求投影大小}
+检偏方向与 $x$ 轴成 $\theta$，其单位向量为
+\begin{equation}
+\mathbf u_\theta=\colvec{\cos\theta}{\sin\theta}.
+\end{equation}
+输入复振幅在该方向的投影为
+\begin{equation}
+E_\parallel=E_x\cos\theta+E_y\sin\theta.
+\end{equation}
+系数都是实数，这里直接对两个复振幅做线性组合。
+
+\subsection{再将透过的电场写回 $x,y$ 分量}
+输出场仅沿检偏方向：
+\begin{equation}
+\mathbf E_{\mathrm{out}}=E_\parallel\mathbf u_\theta.
+\end{equation}
+因此
+\begin{equation}
+E'_x=E_\parallel\cos\theta,\qquad
+E'_y=E_\parallel\sin\theta.
+\end{equation}
+把括号逐项乘开，不省略中间步骤：
+\begin{align}
+E'_x
+&=(E_x\cos\theta+E_y\sin\theta)\cos\theta\notag\\
+&=E_x\cos\theta\cos\theta+E_y\sin\theta\cos\theta\notag\\
+&=E_x\cos^2\theta+E_y\sin\theta\cos\theta,\\[3pt]
+E'_y
+&=(E_x\cos\theta+E_y\sin\theta)\sin\theta\notag\\
+&=E_x\cos\theta\sin\theta+E_y\sin\theta\sin\theta\notag\\
+&=E_x\sin\theta\cos\theta+E_y\sin^2\theta.
+\end{align}
+
+\quest{为什么每一项会有两个三角函数因子？}{
+第一个因子来自输入场投影到检偏方向；第二个因子来自把沿检偏方向的输出场写回 $x,y$ 分量。展开只用了乘法分配律，不是额外的光学假设。}
+
+\subsection{收集系数，得到矩阵}
+\begin{equation}
+\boxed{P_\theta=
+\begin{bmatrix}
+\cos^2\theta&\sin\theta\cos\theta\\
+\sin\theta\cos\theta&\sin^2\theta
+\end{bmatrix}=\mathbf u_\theta\mathbf u_\theta^T.}
+\end{equation}
+原文写成 $\sin(2\theta)/2$，与 $\sin\theta\cos\theta$ 相同。两个便于复习的例子：
+\begin{equation}
+P_0=\begin{bmatrix}1&0\\0&0\end{bmatrix},\qquad
+P_{45^\circ}=\frac12\begin{bmatrix}1&1\\1&1\end{bmatrix}.
+\end{equation}
+前者只保留 $x$ 分量；后者将两分量投影到 $45^\circ$ 方向。
+
+\clearpage
+\section{波片矩阵：分解、相位延迟、重新组合}
+\subsection{第一步：换到快、慢轴坐标}
+以下图画的是\textbf{垂直于 $z$ 的横截面}，不是论文光路的侧视图。横向画 $x$，竖向画 $y$；快轴 $f$ 在 $45^\circ$，慢轴正方向 $s$ 选在 $135^\circ$。
+\begin{center}
+\begin{tikzpicture}[>=Latex,scale=1.05,font=\small]
+\draw[->] (-1.8,0)--(2,0) node[right] {$x$};
+\draw[->] (0,-0.8)--(0,2) node[above] {$y$};
+\draw[->,thick,accent] (0,0)--(1.45,1.45) node[above right] {快轴 $f$};
+\draw[->,thick,ink] (0,0)--(-1.45,1.45) node[above left] {慢轴 $s$};
+\draw (0.55,0) arc (0:45:0.55);
+\node at (0.86,0.31) {$45^\circ$};
+\end{tikzpicture}
+\end{center}
+两个轴的单位向量为
+\begin{equation}
+\mathbf f=\frac1{\sqrt2}\colvec{1}{1},\qquad
+\mathbf s=\frac1{\sqrt2}\colvec{-1}{1}.
+\end{equation}
+对输入电场分别投影：
+\begin{align}
+E_f&=E_x\cos45^\circ+E_y\sin45^\circ
+=\frac{E_x+E_y}{\sqrt2},\\
+E_s&=E_x\cos135^\circ+E_y\sin135^\circ
+=\frac{-E_x+E_y}{\sqrt2}.
+\end{align}
+慢轴式中的负号来自 $\cos135^\circ=-1/\sqrt2$，不代表光强为负。此时电场尚未发生物理变化，只是描述坐标换了。
+
+\subsection{第二步：分别改变两个分量的相位}
+省去公共相位后，四分之一波片在本约定下的作用为
+\begin{equation}
+E'_f=\ee^{\ii\pi/4}E_f,
+\qquad E'_s=\ee^{-\ii\pi/4}E_s.
+\end{equation}
+在这组轴上，它是对角矩阵：
+\begin{equation}
+D=\begin{bmatrix}\ee^{\ii\pi/4}&0\\0&\ee^{-\ii\pi/4}\end{bmatrix}.
+\end{equation}
+零的非对角项表示理想波片不把快轴分量转换到慢轴，或反过来。相位差在这个步骤加入。
+
+\subsection{第三步：组合回原来的 $x,y$ 方向}
+把两个带有新相位的分量沿各自方向相加：
+\begin{equation}
+\mathbf E_Q=E'_f\mathbf f+E'_s\mathbf s.
+\end{equation}
+由两个方向向量的上下项得到
+\begin{equation}
+E_{Qx}=\frac{E'_f-E'_s}{\sqrt2},\qquad
+E_{Qy}=\frac{E'_f+E'_s}{\sqrt2}.
+\end{equation}
+$x$ 分量中是减号，因为慢轴单位向量的 $x$ 项是负的；$y$ 分量中两项同号。
+
+先完整展开 $x$ 分量：
+\begin{align}
+E_{Qx}
+&=\frac12\left[\ee^{\ii\pi/4}(E_x+E_y)-\ee^{-\ii\pi/4}(-E_x+E_y)\right]\notag\\
+&=\frac12\left[\ee^{\ii\pi/4}E_x+\ee^{\ii\pi/4}E_y
++\ee^{-\ii\pi/4}E_x-\ee^{-\ii\pi/4}E_y\right]\notag\\
+&=\frac12\left[(\ee^{\ii\pi/4}+\ee^{-\ii\pi/4})E_x
++(\ee^{\ii\pi/4}-\ee^{-\ii\pi/4})E_y\right].
+\end{align}
+根据欧拉公式，
+\begin{align}
+\ee^{\ii\pi/4}+\ee^{-\ii\pi/4}&=2\cos(\pi/4)=\sqrt2,\\
+\ee^{\ii\pi/4}-\ee^{-\ii\pi/4}&=2\ii\sin(\pi/4)=\ii\sqrt2.
+\end{align}
+所以
+\begin{equation}
+E_{Qx}=\frac{E_x+\ii E_y}{\sqrt2}.
+\end{equation}
+同样，$y$ 分量逐项整理为
+\begin{align}
+E_{Qy}
+&=\frac12\left[\ee^{\ii\pi/4}(E_x+E_y)+\ee^{-\ii\pi/4}(-E_x+E_y)\right]\notag\\
+&=\frac12\left[(\ee^{\ii\pi/4}-\ee^{-\ii\pi/4})E_x
++(\ee^{\ii\pi/4}+\ee^{-\ii\pi/4})E_y\right]\notag\\
+&=\frac{\ii E_x+E_y}{\sqrt2}.
+\end{align}
+收集系数：
+\begin{equation}
+\boxed{\mathbf E_Q=Q\mathbf E_{\mathrm{in}},\qquad
+Q=\frac1{\sqrt2}\begin{bmatrix}1&\ii\\\ii&1\end{bmatrix}.}
+\end{equation}
+
+\subsection{把三步压缩成一次矩阵乘法}
+定义换轴矩阵
+\begin{equation}
+T=\frac1{\sqrt2}\begin{bmatrix}1&1\\-1&1\end{bmatrix}.
+\end{equation}
+输入换到快慢轴用 $T$，返回 $x,y$ 用 $T^T$，所以
+\begin{equation}
+\boxed{Q=T^TDT.}
+\end{equation}
+这个紧凑写法概括了上面的所有分量展开；它不是另外一种物理过程。
+
+\clearpage
+\section{把两个元件接起来：得到原文式 (1)}
+\subsection{元件顺序对应矩阵顺序}
+波片先作用，检偏器后作用：
+\begin{equation}
+\boxed{\mathbf E_{\mathrm{out}}=P_\theta Q\mathbf E_{\mathrm{in}}.}
+\end{equation}
+矩阵从右往左依次作用。原文式 (1) 左侧的撇号表示两种元件之后的输出；本笔记用 $E_{Qx},E_{Qy}$ 专门表示中间位置，避免与最终输出混用。
+
+\subsection{用投影求检偏方向上的输出振幅}
+检偏器只保留沿 $\theta$ 方向的分量：
+\begin{equation}
+E_\theta=E_{Qx}\cos\theta+E_{Qy}\sin\theta.
+\end{equation}
+代入波片后的两个分量并收集系数：
+\begin{align}
+E_\theta
+&=\frac1{\sqrt2}\left[(E_x+\ii E_y)\cos\theta
++(\ii E_x+E_y)\sin\theta\right]\notag\\
+&=\frac1{\sqrt2}\left[(\cos\theta+\ii\sin\theta)E_x
++(\sin\theta+\ii\cos\theta)E_y\right].
+\end{align}
+其中
+\begin{equation}
+\cos\theta+\ii\sin\theta=\ee^{\ii\theta},\qquad
+\sin\theta+\ii\cos\theta=\ii\ee^{-\ii\theta},
+\end{equation}
+第二个等式可以直接展开检查：
+\begin{equation}
+\ii\ee^{-\ii\theta}=\ii(\cos\theta-\ii\sin\theta)
+=\ii\cos\theta+\sin\theta.
+\end{equation}
+于是
+\begin{equation}
+\boxed{E_\theta=\frac1{\sqrt2}(\ee^{\ii\theta}E_x+\ii\ee^{-\ii\theta}E_y).}
+\end{equation}
+代入两束光的振幅与相位：
+\begin{equation}
+\boxed{E_\theta=\frac1{\sqrt2}\left[
+a\ee^{\ii(\varphi_1+\theta)}
++b\ee^{\ii(\varphi_2-\theta+\pi/2)}\right].}
+\end{equation}
+最终的两个坐标分量是
+\begin{equation}
+\mathbf E_{\mathrm{out}}=E_\theta\colvec{\cos\theta}{\sin\theta}.
+\end{equation}
+其模平方等于 $|E_\theta|^2$，因为 $\cos^2\theta+\sin^2\theta=1$。
+
+\quest{为什么检偏角改变 $45^\circ$，干涉相移改变 $90^\circ$？}{
+两束输出光的相位分别是 $\varphi_1+\theta$ 与 $\varphi_2-\theta+\pi/2$。两者相减时，$\theta$ 的贡献是 $-\theta-\theta=-2\theta$。因此检偏角变化 $\Delta\theta$，相对相位改变 $-2\Delta\theta$；大小为两倍。正负号由本文的相位与角度约定决定。}
+
+\clearpage
+\section{电场乘以共轭：得到干涉光强}
+\subsection{光强为什么用模平方}
+探测器记录的光强与电场振动的时间平均平方相关。省略固定的物理换算系数，复振幅形式写为
+\begin{equation}
+I_\theta=|E_\theta|^2=E_\theta E_\theta^*.
+\end{equation}
+对同频光的复振幅计算，这已完成对极快光学振动的平均；相机曝光期间较慢的波面变化还需要另做时间积分，不能把两种平均混在一起。
+
+\subsection{逐项展开四个乘积}
+临时记
+\begin{equation}
+\alpha=\varphi_1+\theta,\qquad
+\beta=\varphi_2-\theta+\pi/2.
+\end{equation}
+则
+\begin{equation}
+E_\theta=\frac1{\sqrt2}(a\ee^{\ii\alpha}+b\ee^{\ii\beta}),\qquad
+E_\theta^*=\frac1{\sqrt2}(a\ee^{-\ii\alpha}+b\ee^{-\ii\beta}).
+\end{equation}
+相乘后得到
+\begin{align}
+I_\theta
+&=\frac12(a\ee^{\ii\alpha}+b\ee^{\ii\beta})
+(a\ee^{-\ii\alpha}+b\ee^{-\ii\beta})\notag\\
+&=\frac12\big[
+a^2\ee^{\ii\alpha}\ee^{-\ii\alpha}
++ab\ee^{\ii\alpha}\ee^{-\ii\beta}
++ab\ee^{\ii\beta}\ee^{-\ii\alpha}
++b^2\ee^{\ii\beta}\ee^{-\ii\beta}\big]\notag\\
+&=\frac12\left[a^2+b^2
++ab\ee^{\ii(\alpha-\beta)}+ab\ee^{-\ii(\alpha-\beta)}\right]\notag\\
+&=\frac12\left[a^2+b^2+2ab\cos(\beta-\alpha)\right].
+\end{align}
+$a^2,b^2$ 是两束光各自的贡献；含有相对相位的交叉项是干涉项。最后一步用了 $\ee^{\ii u}+\ee^{-\ii u}=2\cos u$ 以及余弦的偶对称性。
+
+\subsection{代回待测相位，检查正弦前的负号}
+\begin{equation}
+\beta-\alpha=(\varphi_2-\varphi_1)-2\theta+\pi/2
+=\varphi-2\theta+\pi/2.
+\end{equation}
+因为 $\cos(u+\pi/2)=-\sin u$，所以
+\begin{equation}
+\boxed{I_\theta=\frac12\left[a^2+b^2-2ab\sin(\varphi-2\theta)\right].}
+\end{equation}
+
+\subsection{原文式 (2) 与整体 $1/2$ 的核对}
+原文式 (2) 写为 $a^2+b^2-2ab\sin(\varphi-2\theta)$，没有上述整体 $1/2$。若输入 $a,b$ 沿用式 (1) 的定义，直接计算确实得到 $1/2$。原文该处未明确说明公共强度归一化，不宜替作者断言其做了哪一种归一化。
+
+为清楚对应两种表达，本笔记\textbf{自行定义} $J_\theta=2I_\theta$：
+\begin{equation}
+\boxed{J_\theta=a^2+b^2-2ab\sin(\varphi-2\theta).}
+\end{equation}
+后续按 $J$ 推相位与用 $I$ 推相位结果相同，因为所有通道都有同一倍率。绝对强度或光功率计算时需要统一振幅、探测器响应和换算常数，不能省略这些因子。
+
+\clearpage
+\section{四个检偏方向与原文式 (3)}
+令
+\begin{equation}
+A=a^2+b^2,\qquad B=2ab,\qquad J_\theta=A-B\sin(\varphi-2\theta).
+\end{equation}
+这里 $A$ 是公共背景项，$B$ 是调制幅值，不是条纹可见度本身。此理想模型的可见度为 $B/A$（$A>0$）。
+
+\subsection{四幅光强图逐一代入}
+\begin{align}
+\theta_1=0:quad J_1
+&=A-B\sin\varphi,\\
+\theta_2=\pi/4:\quad J_2
+&=A-B\sin(\varphi-\pi/2)=A+B\cos\varphi,\\
+\theta_3=\pi/2:\quad J_3
+&=A-B\sin(\varphi-\pi)=A+B\sin\varphi,\\
+\theta_4=3\pi/4:\quad J_4
+&=A-B\sin(\varphi-3\pi/2)=A-B\cos\varphi.
+\end{align}
+第二行的正号来自 $\sin(\varphi-\pi/2)=-\cos\varphi$；第四行用了 $\sin(\varphi-3\pi/2)=\cos\varphi$。通道编号必须与这些角度一一对应。
+
+\subsection{先相减，消去公共背景}
+\begin{align}
+J_3-J_1
+&=(A+B\sin\varphi)-(A-B\sin\varphi)
+=2B\sin\varphi,\\
+J_2-J_4
+&=(A+B\cos\varphi)-(A-B\cos\varphi)
+=2B\cos\varphi.
+\end{align}
+再相除，消去公共调制幅值：
+\begin{equation}
+\frac{J_3-J_1}{J_2-J_4}=\tan\varphi.
+\end{equation}
+这对应原文式 (3) 的反正切表达：
+\begin{equation}
+\varphi=\arctan\left(\frac{J_3-J_1}{J_2-J_4}\right).
+\end{equation}
+普通 $\arctan$ 的比值不能保留完整象限；实际恢复包裹相位写为
+\begin{equation}
+\boxed{\varphi_{\mathrm w}=\operatorname{atan2}(J_3-J_1,\ J_2-J_4).}
+\end{equation}
+这里 $\operatorname{atan2}(Y,X)$ 的第一个参数是正弦分量，第二个参数是余弦分量；不同程序接口使用时核对参数顺序。由于 $J_k=2I_k$，也可以直接使用
+\begin{equation}
+\boxed{\varphi_{\mathrm w}=\operatorname{atan2}(I_3-I_1,\ I_2-I_4).}
+\end{equation}
+输出相位按 $2\pi$ 周期包裹。需要连续相位时，再根据测量任务和有效区域做相位展开。当 $B=0$ 时没有相位信息；调制很弱时相位对噪声敏感。
+
+\subsection{这四个角度怎样同时出现}
+上面的推导分别计算四个检偏方向，并没有要求先后转动同一个偏振片。论文后续用光栅产生不同空间通道，并在各通道配置对应的偏振片，同时得到四幅图。这一部分在后续光栅小节继续带读。
+
+\clearpage
+\section{讨论中容易卡住的地方：集中复习}
+\quest{$E_x,E_y$ 是传播方向还是电场振动方向？}{
+是电场分量方向。合束后两束光都沿 $z$ 传播，两个偏振方向在横向平面。输入支路发生反射时，传播方向和相应的偏振方向都要结合该段光路理解。}
+
+\quest{四分之一波片是把整束光都延迟 $90^\circ$ 吗？}{
+它对快、慢轴分量施加不同相位，关键是两者的相对延迟。两分量共有的相位只使整个 Jones 向量乘一个单位模复数，不改变偏振状态。}
+
+\quest{为什么同一束光可以分成两个分量？}{
+这是矢量分解。就像一条斜向力可分成水平和竖直分量，电场可沿任意两个正交横向轴分解；两分量并不等于产生两条新光路。}
+
+\quest{为什么快轴 $45^\circ$ 和相位 $\pm45^\circ$ 同时出现？}{
+前者是元件方向，决定投影系数；后者是去掉共同相位后对两个轴相位的写法。它们恰好用相同数值表示，但物理含义不同。}
+
+\quest{矩阵为什么有加号、减号和 $\ii$？}{
+投影与重新组合中的正负号由轴方向决定；$\ii$ 来自四分之一波片的相位关系及欧拉公式。它们都可以追溯到分量展开。}
+
+\quest{偏振片矩阵中的 $\cos^2\theta$ 为什么是平方？}{
+先将输入场投影到检偏方向产生一个 $\cos\theta$，再把输出场分解回 $x$ 方向产生另一个 $\cos\theta$。两个系数相乘得到平方。}
+
+\quest{为什么两束圆偏振光还要通过检偏器？}{
+两束相反旋向圆偏振光仍是正交偏振态。在本文的理想探测配置下，它们的干涉交叉项互相抵消。共同的检偏器取出同向分量，使相对相位进入可记录的强度。}
+
+\quest{相机看到的是电场转圈还是干涉图？}{
+相机记录光强，不能直接分辨光学频率下的电场转动。模平方给出包含相对相位的干涉强度；实际曝光还可能平均较慢的动态变化。}
+
+\quest{为什么最后用正弦，熟悉的干涉式却用余弦？}{
+这里相对输出相位是 $\varphi-2\theta+\pi/2$；将它代入余弦，用 $\cos(u+\pi/2)=-\sin u$ 就得到原文的正弦形式。没有改变干涉原理。}
+
+\quest{公共强度因子为什么不影响四步相位？}{
+所有通道若乘同一正常数，正弦和余弦差值都按相同倍率缩放，其方向和比值不变。各通道不同的增益或背景则不能这样消掉，需要单独建模或校正。}
+
+\clearpage
+\section{适用条件、核对记录与复习路线}
+\subsection{这些公式成立的条件}
+\begin{itemize}
+\item 输入是可用 Jones 模型描述的两束相干、正交线偏振光；理想波片和检偏器不引入额外损耗或非理想偏振效应。
+\item 波片等效延迟 $90^\circ$，快轴按原文设定放在 $45^\circ$；四个检偏方向准确。
+\item 四个通道在计算时对应同一个物点，且具有可匹配的公共背景和调制幅值。
+\item 四幅图对应相同测量状态，曝光期间变化足够小，或已在前向模型中处理。
+\item 通道编号、相位正方向、复数时间约定保持一致；不能任意更换矩阵符号而不调整后续公式。
+\end{itemize}
+实际装置的配准、器件角度与延迟误差、通道增益和有限曝光会影响这些条件，留待本轮后续文献讨论。
+
+\subsection{本次核对与对话修正}
+\begin{enumerate}
+\item 原文图 1、式 (1)--(3) 已按第一页原版核对。本文公式编号是本笔记自己的编号，不等于原文编号。
+\item 对图中下方输入偏振标记的解释，补上了反射前后的方向变化；不能只看输出坐标就判断入射光电场是否纵向。
+\item $\pm45^\circ$ 相位因子的来源补上时间约定和去共同相位的步骤，避免让它看起来像任意选择。
+\item 原文式 (2) 相对从式 (1) 直接推导的结果少一个公共 $1/2$。本文明确用 $J=2I$ 对应原文，不把未说明的归一化当作作者明示的操作。
+\item 相位恢复使用保留象限的 $\operatorname{atan2}$；保留原文 $\varphi=\varphi_2-\varphi_1$ 及通道顺序。
+\end{enumerate}
+
+\subsection{建议的三轮复习}
+第一轮只读图与物理意义：第 1--4 节。辨认传播方向、电场分量、快慢轴、相位延迟和圆偏振。
+
+第二轮读矩阵：第 5--7 节。每个系数都回到一次投影或一次相位操作，沿三步流程把 $Q$ 重新展开。
+
+第三轮读数据到相位：第 8--9 节。从输出电场乘共轭开始，逐项检查干涉项、四个检偏方向及相位恢复的符号。
+
+有疑问时用第 10 节定位，不必从头反复通读。复习的目标是每个式子都能对应到一个物理操作，而不是只记最终矩阵。
+
+\subsection{来源与当前阅读边界}
+主要来源：钱克矛、缪泓、伍小平，一种用于动态过程测量的实时偏振相移方法，\textit{光学学报}，2001，21(1)：64--67，PDF 第 1 页（印刷页码 64），第 1 节、图 1、原文式 (1)--(3)。
+
+其余细分投影、时间因子约定、矩阵逐项展开、强度归一化记号和复习问答由本次对话推导整理。本笔记为论文第 1 节复习材料；下一项带读是第 2 节相位龙基光栅的衍射特性。
+
+\clearpage
+\section*{一页公式索引}
+\addcontentsline{toc}{section}{一页公式索引}
+\begin{align*}
+\text{输入：}\quad
+\mathbf E_{\mathrm{in}}&=\colvec{a\ee^{\ii\varphi_1}}{b\ee^{\ii\varphi_2}},
+\quad\varphi=\varphi_2-\varphi_1.\\[5pt]
+\text{偏振片：}\quad P_\theta&=
+\begin{bmatrix}\cos^2\theta&\sin\theta\cos\theta\\
+\sin\theta\cos\theta&\sin^2\theta\end{bmatrix}.\\[5pt]
+\text{换轴：}\quad T&=\frac1{\sqrt2}\begin{bmatrix}1&1\\-1&1\end{bmatrix}.\\[5pt]
+\text{轴上相位：}\quad D&=\begin{bmatrix}\ee^{\ii\pi/4}&0\\0&\ee^{-\ii\pi/4}\end{bmatrix}.\\[5pt]
+\text{波片：}\quad Q&=T^TDT=\frac1{\sqrt2}\begin{bmatrix}1&\ii\\\ii&1\end{bmatrix}.\\[5pt]
+\text{元件链：}\quad\mathbf E_{\mathrm{out}}&=P_\theta Q\mathbf E_{\mathrm{in}}.\\[5pt]
+\text{透过振幅：}\quad E_\theta&=\frac1{\sqrt2}
+\left[a\ee^{\ii(\varphi_1+\theta)}+b\ee^{\ii(\varphi_2-\theta+\pi/2)}\right].\\[5pt]
+\text{直接光强：}\quad I_\theta&=\frac12[a^2+b^2-2ab\sin(\varphi-2\theta)].\\[5pt]
+\text{对应原文：}\quad J_\theta&=2I_\theta=A-B\sin(\varphi-2\theta).\\[5pt]
+\text{差值：}\quad J_3-J_1&=2B\sin\varphi,\quad J_2-J_4=2B\cos\varphi.\\[5pt]
+\text{包裹相位：}\quad\varphi_{\mathrm w}&=\operatorname{atan2}(J_3-J_1,\ J_2-J_4).
+\end{align*}
+\note{索引用于查找，不代替前面的推导。$A=a^2+b^2$，$B=2ab$；四个通道对应检偏角 $0,\pi/4,\pi/2,3\pi/4$。}
+\end{document}
